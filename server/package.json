@@ -1,0 +1,17 @@
+{
+  "name": "nexchat-server",
+  "version": "1.0.0",
+  "description": "NexChat WebSocket Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
