@@ -1,4 +1,4 @@
-# ◈ NexChat — Scalable WebSocket Chat App
+# ◈ NexChat —  WebSocket Chat App
 
 Real-time multi-room chat. Node.js WebSocket server + React/Vite frontend.
 
@@ -84,7 +84,6 @@ npm run preview    # preview the production build
 - **Multi-room** — rooms auto-create and destroy
 - **Live presence** — real-time online user list
 - **Typing indicators** — animated dots show who's typing
-- **Message grouping** — consecutive messages are visually grouped
 - **User colors** — each user gets a deterministic unique color
 - **Demo mode** — works in the UI even without a server running
 - **Clean disconnects** — user_left events when someone closes the tab
@@ -124,46 +123,7 @@ npm run preview    # preview the production build
 
 ---
 
-## 📈 Scaling to Production
 
-### Add Redis for Horizontal Scaling
-
-Run multiple server instances behind a load balancer using Redis pub/sub:
-
-```bash
-npm install ioredis
-```
-
-```js
-// server/index.js — swap broadcast() with this:
-const Redis = require("ioredis");
-const pub = new Redis(process.env.REDIS_URL);
-const sub = new Redis(process.env.REDIS_URL);
-
-function broadcast(roomId, payload, exclude = null) {
-  pub.publish(`room:${roomId}`, JSON.stringify(payload));
-}
-
-sub.psubscribe("room:*");
-sub.on("pmessage", (_, channel, data) => {
-  const roomId = channel.replace("room:", "");
-  (rooms.get(roomId) || new Set()).forEach((ws) => {
-    if (ws.readyState === WebSocket.OPEN) ws.send(data);
-  });
-});
-```
-
-### Nginx Reverse Proxy Config
-
-```nginx
-location /ws {
-  proxy_pass         http://localhost:8080;
-  proxy_http_version 1.1;
-  proxy_set_header   Upgrade    $http_upgrade;
-  proxy_set_header   Connection "Upgrade";
-  proxy_set_header   Host       $host;
-}
-```
 
 ### Production Checklist
 
@@ -171,6 +131,4 @@ location /ws {
 - [ ] JWT authentication on WebSocket handshake
 - [ ] Rate limiting per connection (e.g., 10 msg/sec)
 - [ ] Message persistence (PostgreSQL or MongoDB)
-- [ ] Nginx reverse proxy with SSL termination
-- [ ] PM2 or Docker for process management
 - [ ] Reconnect with exponential backoff on client
