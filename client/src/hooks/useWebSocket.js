@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
-export function useWebSocket(url) {
-  const wsRef = useRef(null);
-  const [status, setStatus] = useState("idle"); // idle | connecting | connected | disconnected
+export function useWebSocket() {
+  const wsRef        = useRef(null);
+  const [status, setStatus] = useState("idle");
+  // listeners: { [type]: fn }  — one handler per type, replaced on re-register
+  // We use a separate stable ref so the ws.onmessage closure always reads
+  // the *latest* handler without needing to recreate the socket.
   const listenersRef = useRef({});
 
+  // on() just writes into the ref — no re-render, no stale closure issues
   const on = useCallback((type, fn) => {
     listenersRef.current[type] = fn;
   }, []);
@@ -25,11 +29,16 @@ export function useWebSocket(url) {
         console.log("[ws] connected to", wsUrl);
       };
 
+      // Always reads listenersRef.current at call time — never stale
       ws.onmessage = (e) => {
         let msg;
         try { msg = JSON.parse(e.data); } catch { return; }
-        const handler = listenersRef.current[msg.type];
+
+        console.log("[ws] ←", msg.type, msg); // debug — remove when stable
+
+        const handler  = listenersRef.current[msg.type];
         if (handler) handler(msg);
+
         const wildcard = listenersRef.current["*"];
         if (wildcard) wildcard(msg);
       };
@@ -64,7 +73,6 @@ export function useWebSocket(url) {
     setStatus("idle");
   }, []);
 
-  // Expose a way to update status from outside (used when joined)
   const setConnected = useCallback(() => setStatus("connected"), []);
 
   useEffect(() => () => wsRef.current?.close(), []);

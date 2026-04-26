@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble.jsx";
 
-export default function MessageList({ messages, myId, typingUsers }) {
+export default function MessageList({ messages, myId, typingUsers, onOpenProfile, onReact }) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -19,16 +19,19 @@ export default function MessageList({ messages, myId, typingUsers }) {
         const grouped =
           prev &&
           prev.userId === msg.userId &&
-          (msg.timestamp - prev.timestamp) < 60_000 &&
+          (new Date(msg.timestamp) - new Date(prev.timestamp)) < 60_000 &&
           prev.type !== "system" &&
           msg.type   !== "system";
 
         return (
           <MessageBubble
-            key={msg.id ?? i}
+            key={msg.id ?? msg.msgId ?? i}
             msg={msg}
             isOwn={isOwn}
             grouped={grouped}
+            myId={myId}
+            onOpenProfile={onOpenProfile}
+            onReact={onReact}
           />
         );
       })}
