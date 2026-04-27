@@ -7,16 +7,17 @@ if (!REDIS_URL) {
   throw new Error("REDIS_URL is not set in environment");
 }
 
-const redisOptions = {
-  tls: {}, 
-};
+const publisher = new Redis(REDIS_URL, {
+  maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
+});
 
-const publisher = new Redis(REDIS_URL, redisOptions);
-const subscriber = new Redis(REDIS_URL, redisOptions);
+const subscriber = new Redis(REDIS_URL, {
+  maxRetriesPerRequest: null,
+  retryStrategy: (times) => Math.min(times * 50, 2000),
+});
 
-console.log("REDIS_URL FROM RENDER:", process.env.REDIS_URL);
 
-// console.log("Redis URL:", REDIS_URL);
 
 let redisReady = false;
 
