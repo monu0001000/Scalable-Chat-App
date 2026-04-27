@@ -14,6 +14,8 @@ const redisOptions = {
 const publisher = new Redis(REDIS_URL, redisOptions);
 const subscriber = new Redis(REDIS_URL, redisOptions);
 
+console.log("REDIS_URL FROM RENDER:", process.env.REDIS_URL);
+
 // console.log("Redis URL:", REDIS_URL);
 
 let redisReady = false;
