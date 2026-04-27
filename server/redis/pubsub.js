@@ -1,10 +1,20 @@
 const Redis = require("ioredis");
 const { deliverLocally } = require("../websocket/rooms");
 
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
+const REDIS_URL = process.env.REDIS_URL;
 
-const publisher = new Redis(REDIS_URL);
-const subscriber = new Redis(REDIS_URL);
+if (!REDIS_URL) {
+  throw new Error("REDIS_URL is not set in environment");
+}
+
+const redisOptions = {
+  tls: {}, 
+};
+
+const publisher = new Redis(REDIS_URL, redisOptions);
+const subscriber = new Redis(REDIS_URL, redisOptions);
+
+// console.log("Redis URL:", REDIS_URL);
 
 let redisReady = false;
 
@@ -24,7 +34,7 @@ publisher.on("error", (e) => {
 subscriber.on("connect", () => console.log("[redis] subscriber connected"));
 subscriber.on("error", (e) => console.error("[redis] subscriber error:", e.message));
 
-// 🔥 ENSURE THIS RUNS ONLY ONCE
+//  ENSURE THIS RUNS ONLY ONCE
 if (!subscriber.listenerCount("message")) {
   subscriber.on("message", (channel, data) => {
     let payload;
@@ -46,7 +56,7 @@ const redisChannel = (roomId) => `room:${roomId}`;
 const publish = (roomId, payload) =>
   publisher.publish(redisChannel(roomId), JSON.stringify(payload));
 
-// 🔥 FIXED SUBSCRIBE (NO DUPLICATES)
+//   (NO DUPLICATES)
 const subscribeRoom = (roomId) => {
   const channel = redisChannel(roomId);
 
