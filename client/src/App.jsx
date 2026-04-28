@@ -9,12 +9,14 @@ import MessageInput    from "./components/MessageInput.jsx";
 import ConnectionBadge from "./components/ConnectionBadge.jsx";
 import ProfileCard     from "./components/ProfileCard.jsx";
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 export default function App() {
   const [joined,        setJoined]        = useState(false);
   const [username,      setUsername]      = useState("");
   const [myColor,       setMyColor]       = useState("#96CEB4");
   const [myId,          setMyId]          = useState(null);
-  const myIdRef = useRef(null); // always-current ref so callbacks don't go stale
+  const myIdRef = useRef(null);
   const [myAvatarUrl,   setMyAvatarUrl]   = useState("");
   const [currentRoom,   setCurrentRoom]   = useState("general");
   const [dmPartner,     setDmPartner]     = useState("");
@@ -30,7 +32,6 @@ export default function App() {
 
   const { connect, send, status, setConnected, on } = useWebSocket();
 
-  // Keep ref in sync with state
   useEffect(() => { myIdRef.current = myId; }, [myId]);
 
   // ── WS event handlers ──────────────────────────────────────────────────────
@@ -127,22 +128,30 @@ export default function App() {
   const fetchFriends = useCallback(async () => {
     const token = localStorage.getItem("nexchat_token");
     if (!token) return;
-    const [f, r] = await Promise.all([
-      fetch("http://localhost:8080/friends",          { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-      fetch("http://localhost:8080/friends/requests", { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-    ]);
-    setFriends(f.friends || []);
-    setFriendRequests(r.requests || []);
+    try {
+      const [f, r] = await Promise.all([
+        fetch(`${API}/friends`,          { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch(`${API}/friends/requests`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+      ]);
+      setFriends(f.friends || []);
+      setFriendRequests(r.requests || []);
+    } catch (e) {
+      console.error("[fetchFriends]", e.message);
+    }
   }, []);
 
   const fetchServers = useCallback(async () => {
     const token = localStorage.getItem("nexchat_token");
     if (!token) return;
-    const res  = await fetch("http://localhost:8080/servers", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setServers(data.servers || []);
+    try {
+      const res  = await fetch(`${API}/servers`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setServers(data.servers || []);
+    } catch (e) {
+      console.error("[fetchServers]", e.message);
+    }
   }, []);
 
   // ── Join ───────────────────────────────────────────────────────────────────
@@ -156,7 +165,7 @@ export default function App() {
       Notification.requestPermission();
     }
 
-    fetch(`http://localhost:8080/users/${user}`)
+    fetch(`${API}/users/${user}`)
       .then(r => r.json())
       .then(data => setMyAvatarUrl(data.avatarUrl || ""))
       .catch(() => {});
@@ -198,11 +207,11 @@ export default function App() {
     send({ type: "message", text, imageUrl: imageUrl || "" });
   }, [send]);
 
-  const handleTyping = useCallback((isTyping) => send({ type: "typing", isTyping }), [send]);
+  const handleTyping  = useCallback((isTyping) => send({ type: "typing", isTyping }), [send]);
 
   const handleReact = useCallback(async (msgId, emoji) => {
     const token = localStorage.getItem("nexchat_token");
-    await fetch(`http://localhost:8080/messages/${msgId}/react`, {
+    await fetch(`${API}/messages/${msgId}/react`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ emoji }),
@@ -218,15 +227,13 @@ export default function App() {
     send({ type: "join", room });
   }, [currentRoom, send]);
 
-  // Uses ref so it's never stale regardless of when myId state updates
   const handleOpenDM = useCallback((friend) => {
     const id = myIdRef.current;
     if (!id) return;
     setActiveServer(null);
     setDmPartner(friend.username);
-    const ids = [id, String(friend.userId)].sort();
+    const ids  = [id, String(friend.userId)].sort();
     const room = `dm_${ids[0]}_${ids[1]}`;
-    console.log("[DM] myId:", id, "friendId:", friend.userId, "room:", room);
     setCurrentRoom(room);
     setMessages([]);
     setOnlineUsers([]);
@@ -256,7 +263,6 @@ export default function App() {
         borderRadius: 16, display: "flex", overflow: "hidden",
         boxShadow: "0 0 80px #4ECDC406",
       }}>
-
         <ServerRail
           servers={servers}
           activeServerId={activeServer?._id}

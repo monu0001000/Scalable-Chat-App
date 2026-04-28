@@ -19,7 +19,7 @@ const subscriber = new Redis(REDIS_URL, redisOptions);
 
 let redisReady = false;
 
-// 🔥 THIS FIXES YOUR BUG
+
 const subscribedRooms = new Set();
 
 publisher.on("connect", () => {
