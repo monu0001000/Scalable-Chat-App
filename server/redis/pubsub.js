@@ -2,20 +2,18 @@ const Redis = require("ioredis");
 const { deliverLocally } = require("../websocket/rooms");
 
 const REDIS_URL = process.env.REDIS_URL;
-
 if (!REDIS_URL) {
   throw new Error("REDIS_URL is not set in environment");
 }
 
-const publisher = new Redis(REDIS_URL, {
+const redisOptions = {
   maxRetriesPerRequest: null,
   retryStrategy: (times) => Math.min(times * 50, 2000),
-});
+  tls: REDIS_URL.startsWith("rediss://") ? { rejectUnauthorized: false } : undefined,
+};
 
-const subscriber = new Redis(REDIS_URL, {
-  maxRetriesPerRequest: null,
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-});
+const publisher  = new Redis(REDIS_URL, redisOptions);
+const subscriber = new Redis(REDIS_URL, redisOptions);
 
 
 
