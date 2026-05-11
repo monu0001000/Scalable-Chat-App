@@ -27,7 +27,7 @@ const deliverLocally = (roomId, payload, excludeUserId = null) => {
   clients.forEach((ws) => {
     const u = users.get(ws);
 
-    // 🔥 prevent sender duplicate
+  
     if (u && u.id === excludeUserId) return;
 
     if (ws.readyState === WebSocket.OPEN) {

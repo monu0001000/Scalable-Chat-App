@@ -6,6 +6,8 @@ export default function FriendRequest({ onClose, onSent }) {
   const [message, setMessage]   = useState("");
   const [loading, setLoading]   = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   async function handleSend() {
     if (!username.trim()) return;
     setLoading(true);
@@ -13,7 +15,7 @@ export default function FriendRequest({ onClose, onSent }) {
     try {
       const token = localStorage.getItem("nexchat_token");
       const res = await fetch(
-        `http://localhost:8080/friends/request/${username.trim()}`,
+        `${API_URL}/friends/request/${username.trim()}`,
         { method: "POST", headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();

@@ -17,7 +17,7 @@ export default function MessageBubble({ msg, isOwn, grouped, onOpenProfile, onRe
       </div>
     );
   }
-
+ 
   const reactions = msg.reactions || {};
   const hasReactions = Object.keys(reactions).filter(e => reactions[e]?.length > 0).length > 0;
 
@@ -74,6 +74,7 @@ export default function MessageBubble({ msg, isOwn, grouped, onOpenProfile, onRe
         */}
         <div
           style={{ position: "relative", paddingTop: 40 }}
+          
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >

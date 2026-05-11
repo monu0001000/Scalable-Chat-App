@@ -2,6 +2,8 @@ import { useState } from "react";
 import Avatar from "./Avatar";
 import FriendRequest from "./FriendRequest";
 
+
+
 export default function Sidebar({
   currentRoom,
   onSwitchRoom,
@@ -23,6 +25,7 @@ export default function Sidebar({
   const channels = ["general", "tech", "design", "random"];
   const me = { username, color: myColor, avatarUrl: myAvatarUrl };
   const myId = localStorage.getItem("nexchat_userid");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   return (
     <aside style={{
@@ -114,7 +117,7 @@ export default function Sidebar({
                 onAccept={async () => {
                   const token = localStorage.getItem("nexchat_token");
                   await fetch(
-                    `http://localhost:8080/friends/accept/${req.from._id || req.from.userId}`,
+                    `${API_URL}/friends/accept/${req.from._id || req.from.userId}`,
                     { method: "POST", headers: { Authorization: `Bearer ${token}` } }
                   );
                   onFriendsUpdate?.();
@@ -122,7 +125,7 @@ export default function Sidebar({
                 onDecline={async () => {
                   const token = localStorage.getItem("nexchat_token");
                   await fetch(
-                    `http://localhost:8080/friends/decline/${req.from._id || req.from.userId}`,
+                    `${API_URL}/friends/decline/${req.from._id || req.from.userId}`,
                     { method: "POST", headers: { Authorization: `Bearer ${token}` } }
                   );
                   onFriendsUpdate?.();

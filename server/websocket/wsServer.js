@@ -15,8 +15,7 @@ const {
 const initWsServer = (httpServer) => {
   const wss = new WebSocket.Server({ server: httpServer });
 
-  // 🚫 NO Redis subscriber here anymore (handled in pubsub.js)
-
+ 
   wss.on("connection", (ws, req) => {
     const { query } = url.parse(req.url, true);
     const token = query.token;

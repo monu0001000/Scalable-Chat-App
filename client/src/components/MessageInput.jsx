@@ -28,7 +28,8 @@ export default function MessageInput({ onSend, onTyping, disabled }) {
       const token = localStorage.getItem("nexchat_token");
       const form  = new FormData();
       form.append("file", file);
-      const res  = await fetch("http://localhost:8080/upload", {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API_URL}/upload`, {
         method:  "POST",
         headers: { Authorization: `Bearer ${token}` },
         body:    form,
