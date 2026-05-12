@@ -1,5 +1,11 @@
 # ◈ NexChat —  WebSocket Chat App
 
+## Live Demo
+
+[Open Scalable Chat App](https://scalable-chat-app-azure.vercel.app/)
+
+> Note: The backend may take a few seconds to wake up on the first request.
+
 Real-time multi-room chat. Node.js WebSocket server + React/Vite frontend.
 
 ---
