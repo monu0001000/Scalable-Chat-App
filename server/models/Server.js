@@ -14,7 +14,7 @@ const channelSchema = new mongoose.Schema({
 });
 
 const inviteSchema = new mongoose.Schema({
-  code:      { type: String, required: true, unique: true },
+  code:      { type: String, required: true},
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   expiresAt: { type: Date, required: true },
   maxUses:   { type: Number, default: 10 },
