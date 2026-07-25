@@ -12,7 +12,7 @@ const Message      = require("./models/Message");
 const serversRouter = require("./routes/servers");
 const { rooms }    = require("./websocket/rooms");
 const uploadRouter = require("./routes/upload");
-const messagesRouter = require("./routes/messages");  // ← ADD THIS
+const messagesRouter = require("./routes/messages");  
 
 const PORT = process.env.PORT || 8080;
 
@@ -26,7 +26,7 @@ app.use("/users",    userRoutes);
 app.use("/friends",  friendsRouter);
 app.use("/servers",  serversRouter);
 app.use("/upload",   uploadRouter);
-app.use("/messages", messagesRouter);  // ← ADD THIS
+app.use("/messages", messagesRouter); 
 
 app.get("/health", async (req, res) => {
   const msgCount = await Message.countDocuments().catch(() => -1);
